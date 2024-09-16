@@ -54,7 +54,7 @@ Viewer::Viewer()
 
 void Viewer::init_ogl()
 {
-	color = EZCOGL::GLVec3(1.f, 1.f, 1.f);
+	color = EZCOGL::GLVec3(0.f, 0.f, 0.f);
 
 	shaderPrg = EZCOGL::ShaderProgram::create({{GL_VERTEX_SHADER, EZCOGL::load_src(SHADERS_PATH + "/TP1.vs")}, {GL_FRAGMENT_SHADER, EZCOGL::load_src(SHADERS_PATH + "/TP1.fs")}}, "Square");
 	

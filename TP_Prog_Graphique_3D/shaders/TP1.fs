@@ -14,5 +14,5 @@ void main()
 {
 	// MANDATORY
 	// - a fragment shader MUST write an RGBA color
-	oFragmentColor = vec4(position_out, color[2], 1.f); // [values are between 0.0 and 1.0]
+	oFragmentColor = vec4(mix(position_out[0], 1.f, color[0]), mix(position_out[1], 1.f, color[1]), mix(mix(position_out[0], position_out[1], 0.5f), color[2], color[2]), 1.f); // [values are between 0.0 and 1.0]
 }
