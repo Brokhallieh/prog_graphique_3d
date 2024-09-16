@@ -7,6 +7,7 @@
 layout(location = 1) in vec2 position_in;
 layout(location = 2) uniform float time;
 layout(location = 3) out vec2 position_out;
+layout(location = 4) uniform mat4 model;
 
 float fmod(float a, float b) {
 	while (a<0) {
@@ -40,5 +41,5 @@ void main()
 	// MANDATORY
 	// - a vertex shader MUST write the value of the predefined variable " (GLSL langage)"
 	// - this value represent a position in NDC space (normalized device coordintes), i.e the cube [-1.0;1.0]x[-1;1.0]x[-1;1.0]
-	gl_Position = vec4(position_in, 0.0, 1.0);
+	gl_Position = model*vec4(position_in, 0.0, 1.0);
 }

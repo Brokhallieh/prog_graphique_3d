@@ -63,7 +63,7 @@ void Viewer::init_ogl()
 	// ***********************************
 
 	// create a VBO with the position of 4 2D vertices (for point and line loop draw)
-	EZCOGL::VBO::SP vbo_p = EZCOGL::VBO::create(EZCOGL::GLVVec2{{-0.5f, -0.5f}/*(x0,y0)*/, {0.5f, -0.5f}/*(x1,y1)*/, {0.5f, 0.5f}/*(x2,y2)*/, {-0.5f, 0.5f}/*(x3,y3)*/});
+	EZCOGL::VBO::SP vbo_p = EZCOGL::VBO::create(EZCOGL::GLVVec2{{-0.5f, -0.5f}/*(x0,y0)*/, {0.5f, -0.5f}/*(x1,y1)*/, {0.5f, 0.5f}/*(x2,y2)*/, {0.5f, 0.5f}/*(x2,y2)*/, {-0.5f, 0.5f}/*(x3,y3)*/, {-0.5f, -0.5f}/*(x0,y0)*/});
 	
 	// create the VAO and associate the VBO to it
 	vao = EZCOGL::VAO::create({{1, vbo_p}}); // 1 is the "location index". We use this ID in the vertex shader to get this VBO with a "in" variable
@@ -92,12 +92,21 @@ void Viewer::draw_ogl()
 	float time = EZCOGL::current_time();
 	EZCOGL::set_uniform_value(2, time);
 
-	// 1st pass : Draw Points
-	glDrawArrays(GL_POINTS, 0, 4);
-	// 2nd pass : Draw Lines
-	glDrawArrays(GL_LINE_LOOP, 0, 4);
+	/*glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
+	glFrontFace(GL_CCW);*/
+	//marche avec (BACK et CCW) où (FRONT et CW) sinon ne dessine que les points et les lignes)
 
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	const EZCOGL::GLMat4& model = EZCOGL::Transfo::rotateZ(45.f) * EZCOGL::Transfo::translate(0.5f, 0.2f, 0.f) * EZCOGL::Transfo::scale(0.5f);
+	EZCOGL::set_uniform_value(4, model);
+
+	// 1st pass : Draw Points
+	glDrawArrays(GL_POINTS, 0, 5);
+	// 2nd pass : Draw Lines
+	glDrawArrays(GL_LINE_LOOP, 0, 5);
+
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 3, 6);
 }
 
 void Viewer::interface_ogl()
