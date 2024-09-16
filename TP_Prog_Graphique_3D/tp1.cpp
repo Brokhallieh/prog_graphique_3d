@@ -97,7 +97,7 @@ void Viewer::draw_ogl()
 	glFrontFace(GL_CCW);*/
 	//marche avec (BACK et CCW) où (FRONT et CW) sinon ne dessine que les points et les lignes)
 
-	const EZCOGL::GLMat4& model = EZCOGL::Transfo::rotateZ(45.f) * EZCOGL::Transfo::translate(0.5f, 0.2f, 0.f) * EZCOGL::Transfo::scale(0.5f);
+	const EZCOGL::GLMat4& model = EZCOGL::Transfo::rotateZ(45.f);
 	EZCOGL::set_uniform_value(4, model);
 
 	// 1st pass : Draw Points
