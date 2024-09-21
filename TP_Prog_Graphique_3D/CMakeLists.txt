@@ -17,6 +17,8 @@ set( tp_list
 
   tuto_1
 
+  tuto2_1
+
 )
 
 foreach( exec_tp ${tp_list})
