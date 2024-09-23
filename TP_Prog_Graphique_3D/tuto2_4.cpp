@@ -103,6 +103,7 @@ void Viewer::draw_ogl()
 	EZCOGL::set_uniform_value(1, view);
 	EZCOGL::set_uniform_value(2, proj);
 	
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void Viewer::interface_ogl()
