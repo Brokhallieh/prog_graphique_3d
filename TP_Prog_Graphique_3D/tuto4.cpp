@@ -62,8 +62,8 @@ int main(int, char**)
 	return v.launch3d();
 }
 
-Viewer::Viewer() : resolution(30), scale(5), terrainElevation(11.f), noise(EZCOGL::GLVec2(10.f, 10.f)), noiseScale(EZCOGL::GLVec2(2.f, 1.f)), 
-				   startHeight(1.25f), weight(2.f), mult(0.4f), noisePower(10.f), frequency(5.f), lightPos(EZCOGL::GLVec3(0.f, -1.5f, 0.f)), intensity(2.5f)
+Viewer::Viewer() : resolution(50), scale(5), terrainElevation(11.f), noise(EZCOGL::GLVec2(10.f, 10.f)), noiseScale(EZCOGL::GLVec2(2.f, 1.f)), 
+				   startHeight(1.25f), weight(3.f), mult(0.25f), noisePower(5.f), frequency(8.f), lightPos(EZCOGL::GLVec3(0.f, -20.f, 0.f)), intensity(7.5f)
 {}
 
 void Viewer::init_ogl()
@@ -151,7 +151,6 @@ void Viewer::draw_ogl()
 	EZCOGL::set_uniform_value(1, model);
 	EZCOGL::set_uniform_value(2, view);
 	EZCOGL::set_uniform_value(3, proj);
-	EZCOGL::set_uniform_value(3, proj);
 	EZCOGL::set_uniform_value(4, terrainElevation);
 	EZCOGL::set_uniform_value(5, noise);
 	EZCOGL::set_uniform_value(6, noiseScale);
@@ -163,6 +162,7 @@ void Viewer::draw_ogl()
 	EZCOGL::set_uniform_value(12, resolution);
 	EZCOGL::set_uniform_value(13, lightPos);
 	EZCOGL::set_uniform_value(14, intensity);
+	EZCOGL::set_uniform_value(15, EZCOGL::Transfo::inverse_transpose(view * model));
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -176,6 +176,7 @@ void Viewer::interface_ogl()
 	ImGui::SetWindowSize({0,0});
 
 	ImGui::Text("Generation");
+	ImGui::SliderInt("Resolution", &resolution, 10, 100); // terrainElevation : float
 	ImGui::SliderFloat("Elevation", &terrainElevation, 0.f, 140.f); // terrainElevation : float
 	ImGui::SliderFloat2("Noise X - Y", noise.data(), -10.f, 10.f); // noise : EZCOGL::GLVec2
 	ImGui::SliderFloat2("Noise scale X - Y", noiseScale.data(), 0.5f, 2.f); // noiseScale : EZCOGL::GLVec2
@@ -184,8 +185,8 @@ void Viewer::interface_ogl()
 	ImGui::SliderFloat("Mult", &mult, 0.01f, 10.f); // mult : float
 	ImGui::SliderFloat("Noise power", &noisePower, 1.f, 20.f); // noisePower : float
 	ImGui::SliderInt("Frequency", &frequency, 1, 10); // frequency : int
-	ImGui::SliderFloat3("Light position", lightPos.data(), -100.f, 100.f); // lightPos : EZCOGL::GLVec3
-	ImGui::SliderFloat("Intensity", &intensity, 0, 8); // intensity : float 
+	ImGui::SliderFloat3("Light position", lightPos.data(), -30.f, 30.f); // lightPos : EZCOGL::GLVec3
+	ImGui::SliderFloat("Intensity", &intensity, 0, 15); // intensity : float 
 
 	ImGui::Text("FPS :(%2.2lf)", fps_);
 	if (ImGui::Button("Reload shaders"))

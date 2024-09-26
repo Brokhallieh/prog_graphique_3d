@@ -12,6 +12,7 @@ const vec3 snowColor = vec3(0.90, 0.90, 0.95);
 // INPUT
 layout(location = 0) in vec3 normal;
 layout(location = 1) in vec3 uCoords;
+layout(location = 2) in float height;
 
 // UNIFORM
 layout(location = 13) uniform vec3 uLightPos;
@@ -23,7 +24,6 @@ out vec4 oFragmentColor;
 // MAIN PROGRAM
 void main()
 {
-	float height = uCoords[1];
 	// COLOR
 	vec3 gravelDirt = mix(gravelColor, dirtColor, smoothstep(-0.5, 0.02, height));
 	vec3 dirtGrass = mix(gravelDirt, grassColor, smoothstep(0.03, 0.06, height));
@@ -31,8 +31,7 @@ void main()
 	vec3 rockSnow = mix(grassRock, snowColor, smoothstep(0.14, 0.15, height));
 	vec3 color = rockSnow.rgb;
 
-	vec3 uNormal = normal;
-
+	vec3 uNormal = normalize(normal);
 	if (gl_FrontFacing == false) uNormal = -uNormal;
 
 	// Get the vector between the fragment position and the light position

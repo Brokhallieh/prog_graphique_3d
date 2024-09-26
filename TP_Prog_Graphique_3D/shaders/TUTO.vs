@@ -6,6 +6,7 @@ layout(location = 0) in vec3 position_in;
 // OUTPUT
 layout(location = 0) out vec3 uNormal;
 layout(location = 1) out vec3 uCoords;
+layout(location = 2) out float height;
 
 // UNIFORM
 layout(location = 1) uniform mat4 uModelMatrix;
@@ -20,6 +21,7 @@ layout(location = 9) uniform float uMult;
 layout(location = 10) uniform float uNoisePower;
 layout(location = 11) uniform int uFrequency;
 layout(location = 12) uniform int uResolution;
+layout(location = 15) uniform mat3 uInverseTransposeViewMatrix;
 
 
 float noise2(vec2 p)
@@ -95,7 +97,12 @@ void main()
 	gl_PointSize = 5.f;
 	// get the position in view space
 	// - write position with matrix transformations into screen space
-	gl_Position = uProjectionMatrix*uViewMatrix*uModelMatrix*vec4(position_in[0], vertexHeight(position_in.xz), position_in[2], 1.f);
-	uNormal = computeNormal(vec3(gl_Position));
-	uCoords = vec3(position_in.x, vertexHeight(position_in.xz), position_in.z);
+	height = vertexHeight(position_in.xz);
+	gl_Position = uProjectionMatrix*uViewMatrix*uModelMatrix*vec4(position_in[0], height, position_in[2], 1.f);
+
+	vec4 viewPos = uViewMatrix * vec4(position_in, 1.f);
+
+	uNormal = uInverseTransposeViewMatrix * computeNormal(vec3(position_in[0], height, position_in[2]));
+
+	uCoords = viewPos.xyz;
 }
