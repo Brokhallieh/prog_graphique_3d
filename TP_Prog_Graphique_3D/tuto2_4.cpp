@@ -91,8 +91,24 @@ void Viewer::draw_ogl()
     // Construct a model matrix
     const EZCOGL::GLMat4& model = EZCOGL::Transfo::rotateX(-90.0) * EZCOGL::Transfo::scale(1.5f);
 
+	// Activate the Z-buffer test
+	glEnable(GL_DEPTH_TEST);
+	// 1st pass : draw without writing color into the framebuffer just for init the Z-Buffer
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glColorMask(false, false, false, false);
 	for (int i = 0; i < nbMeshParts; ++i)
 		car_rend[i]->draw(GL_TRIANGLES);
+	// 2nd pass : draw again in LINE mode with an offset
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(-1.f, 1.0);
+	glDepthMask(false);
+	glColorMask(true, true, true, true);
+	for (int i = 0; i < nbMeshParts; ++i)
+		car_rend[i]->draw(GL_TRIANGLES);
+	// reset for next frame
+	glDisable(GL_POLYGON_OFFSET_LINE);
+	glDepthMask(true);
 
 	// ***********************************
 	// Rendering
