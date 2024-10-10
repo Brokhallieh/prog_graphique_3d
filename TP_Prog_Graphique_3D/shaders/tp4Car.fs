@@ -13,6 +13,9 @@ layout(location = 6) uniform vec3 uKa;
 layout(location = 7) uniform vec3 uKd;
 layout(location = 8) uniform vec3 uKs;
 layout(location = 9) uniform float uNs;
+layout(location = 10)uniform float coeffRefl;
+layout(location = 11) uniform float uOpacity; 
+layout(binding = 0) uniform samplerCube uSampler;
 
 
 // OUTPUT
@@ -25,7 +28,8 @@ void main()
 	if (gl_FrontFacing == false) normal = -normal;
 
 	// Get the vector between the fragment position and the light position
-	vec3 lightDir = normalize(uLightPos - v_pos); // Point light
+	vec3 lightDir = normalize(-uLightPos-v_pos); // Point light
+	vec3 viewDir = normalize(-v_pos.xyz); // "view direction" from current vertex position => because, in View space, "dir = vec3(0.0, 0.0, 0.0) - p"
 
 	// Ambient lighting : approximation...
 	vec3 Ia = uLightIntensity * uKa;
@@ -40,15 +44,18 @@ void main()
 	vec3 Is = vec3(0.0);
 	if (diffuseTerm > 0.0)
 	{
-		vec3 viewDir = normalize(-v_pos.xyz); // "view direction" from current vertex position => because, in View space, "dir = vec3(0.0, 0.0, 0.0) - p"
+		
 		vec3 halfDir = normalize(viewDir + lightDir); // half-vector between view and light vectors
 		float specularTerm = max(0.0, pow(dot(normal, halfDir), uNs)); // "Ns" control the size of the specular highlight
 		Is = uLightIntensity * uKs * vec3(specularTerm);
 		Is /= (uNs + 2.f) / (2.f * M_PI); // normalization of the specular BRDF (for energy conservation)
 	}
 
-	// Reflected intensity (i.e final color) from additif model
-	vec3 finalColor = (0.3 * Ia) + (0.3 * Id) + (0.3 * Is);
+	vec3 R = reflect(-viewDir,normal);
+	vec3 envColor = texture(uSampler,R).rgb;
 
-	oFragmentColor = vec4(finalColor, 1.f);
+	// Reflected intensity (i.e final color) from additif model
+	vec3 finalColor = mix((0.3 * Ia) + (0.3 * Id) + (0.3 * Is),envColor,coeffRefl);
+
+	oFragmentColor = vec4(finalColor, uOpacity);
 }
