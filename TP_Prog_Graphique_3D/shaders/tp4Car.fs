@@ -5,6 +5,8 @@ precision highp float;
 // IN
 in vec3 v_pos;
 in vec3 v_norm;
+in vec4 worldPos;
+in vec3 worldNormal;
 
 // UNIFORM
 layout(location = 4) uniform vec3 uLightIntensity;
@@ -15,6 +17,7 @@ layout(location = 8) uniform vec3 uKs;
 layout(location = 9) uniform float uNs;
 layout(location = 10)uniform float coeffRefl;
 layout(location = 11) uniform float uOpacity; 
+layout(location = 12) uniform vec4 CameraPosWorld; 
 layout(binding = 0) uniform samplerCube uSampler;
 
 
@@ -51,7 +54,8 @@ void main()
 		Is /= (uNs + 2.f) / (2.f * M_PI); // normalization of the specular BRDF (for energy conservation)
 	}
 
-	vec3 R = reflect(-viewDir,normal);
+	vec3 I = normalize(worldPos.xyz - CameraPosWorld.xyz);
+	vec3 R = reflect(I, normalize(worldNormal));
 	vec3 envColor = texture(uSampler,R).rgb;
 
 	// Reflected intensity (i.e final color) from additif model

@@ -45,6 +45,7 @@ class Viewer: public EZCOGL::GLViewer
 	EZCOGL::GLVec3 lightPos;
 	float intensity;
 	float coeffRefl;
+	
 	// Material
 	std::vector<EZCOGL::GLVec3> ka; // Ambient
 	std::vector<EZCOGL::GLVec3> kd; // Diffus
@@ -67,7 +68,7 @@ int main(int, char**)
 	return v.launch3d();
 }
 
-Viewer::Viewer() : lightPos(200.f, 200.f, -200.f), intensity(15.f), coeffRefl(0.3f)
+Viewer::Viewer() : lightPos(200.f, 200.f, -200.f), intensity(15.f), coeffRefl(1.f)
 {}
 
 void Viewer::init_ogl()
@@ -121,15 +122,15 @@ void Viewer::draw_ogl()
     // Get the view and projection matrix
 	const EZCOGL::GLMat4& view = this->get_view_matrix();
     EZCOGL::GLMat4 view2 = view;
-    //view2.block<1,3>(3, 0).setZero();
+    view2.block<3,1>(0, 3).setZero();
 
     view2.block<3,1>(0, 0).normalize(); 
     view2.block<3,1>(0, 1).normalize(); 
     view2.block<3,1>(0, 2).normalize();
 	const EZCOGL::GLMat4& proj = this->get_projection_matrix();
     // Construct a model matrix
-    const EZCOGL::GLMat4& modelCube = EZCOGL::Transfo::rotateX(90.0);
-    const EZCOGL::GLMat4& modelCar = EZCOGL::Transfo::rotateX(0.0);
+    const EZCOGL::GLMat4& modelCube = EZCOGL::Transfo::rotateX(0.0);
+    const EZCOGL::GLMat4& modelCar = EZCOGL::Transfo::rotateX(-90.0);
     
 
 
@@ -140,7 +141,7 @@ void Viewer::draw_ogl()
     shaderPrgCube->bind();
 	//desable depth test
     glDisable(GL_DEPTH_TEST);
-	glDepthMask(GL_FALSE);
+	//glDepthMask(GL_FALSE);
 	// Uniforms variables send to the GPU
 	EZCOGL::set_uniform_value(0, modelCube);
 	EZCOGL::set_uniform_value(1, view2);
@@ -158,24 +159,38 @@ void Viewer::draw_ogl()
 	glEnable(GL_DEPTH_TEST);glDepthMask(GL_TRUE);
 	// Uniforms variables send to the GPU
 	EZCOGL::set_uniform_value(0, modelCar);
-	EZCOGL::set_uniform_value(1, view2);
+	EZCOGL::set_uniform_value(1, view);
 	EZCOGL::set_uniform_value(2, proj);
 	EZCOGL::set_uniform_value(3, EZCOGL::Transfo::inverse_transpose(view * modelCar));
 	// Uniforms variables send to the GPU
 	EZCOGL::set_uniform_value(4, EZCOGL::GLVec3(intensity, intensity, intensity));
 	EZCOGL::set_uniform_value(5, EZCOGL::Transfo::sub33(view * modelCar) * lightPos);
 	EZCOGL::set_uniform_value(10,coeffRefl);
-
+	EZCOGL::set_uniform_value(12, view.inverse()*EZCOGL::GLVec4(0.,0.,0.,1.));
+	EZCOGL::set_uniform_value(13, EZCOGL::Transfo::inverse_transpose(modelCar));
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int i = 0; i < nbMeshParts; ++i)
 	{
-		EZCOGL::set_uniform_value(6, ka[i]);
-		EZCOGL::set_uniform_value(7, kd[i]);
-		EZCOGL::set_uniform_value(8, ks[i]);
-		EZCOGL::set_uniform_value(9, ns[i]);
-		EZCOGL::set_uniform_value(11, opacity[i]);
-		car_rend[i]->draw(GL_TRIANGLES);
+		if (opacity[i] > 0.999f) {
+			EZCOGL::set_uniform_value(6, ka[i]);
+			EZCOGL::set_uniform_value(7, kd[i]);
+			EZCOGL::set_uniform_value(8, ks[i]);
+			EZCOGL::set_uniform_value(9, ns[i]);
+			EZCOGL::set_uniform_value(11, opacity[i]);
+			car_rend[i]->draw(GL_TRIANGLES);
+		}
+	}
+	for (int i = 0; i < nbMeshParts; ++i)
+	{
+		if (opacity[i] <= 0.999f) {
+			EZCOGL::set_uniform_value(6, ka[i]);
+			EZCOGL::set_uniform_value(7, kd[i]);
+			EZCOGL::set_uniform_value(8, ks[i]);
+			EZCOGL::set_uniform_value(9, ns[i]);
+			EZCOGL::set_uniform_value(11, opacity[i]);
+			car_rend[i]->draw(GL_TRIANGLES);
+		}
 	}
 	glDisable(GL_BLEND);
 }
