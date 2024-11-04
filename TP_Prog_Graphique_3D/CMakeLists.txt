@@ -33,7 +33,9 @@ set( tp_list
 
   #tp4
 
-  tp5
+  #tp5
+
+  tp6
 
 )
 
