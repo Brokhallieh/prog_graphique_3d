@@ -37,6 +37,8 @@ set( tp_list
 
   tp6
 
+  tp7
+
 )
 
 foreach( exec_tp ${tp_list})
