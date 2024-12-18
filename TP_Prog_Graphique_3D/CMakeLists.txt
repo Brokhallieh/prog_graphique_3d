@@ -39,7 +39,11 @@ set( tp_list
 
   #tp7
 
-  tp8
+  #tp8
+
+  tp10-1
+
+  tp10-2
 
 )
 
