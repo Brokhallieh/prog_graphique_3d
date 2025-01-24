@@ -50,6 +50,9 @@ class Viewer: public EZCOGL::GLViewer
 
 	EZCOGL::Mesh::SP meshSphere;
 
+	std::vector<EZCOGL::GLMat4> modelAsteroids;
+	int nbAsteroids;
+
 public:
 	Viewer();
 	void init_ogl() override;
@@ -63,7 +66,7 @@ int main(int, char**)
 	return v.launch3d();
 }
 
-Viewer::Viewer()
+Viewer::Viewer() : revolution(true), nbInstances(1000)
 {}
 
 EZCOGL::Texture2D::SP textureCelestialBody(const std::string &filename)
@@ -98,6 +101,14 @@ void Viewer::init_ogl()
     glClearColor(0.1, 0.1, 0.1, 1.0);
 }
 
+EZCOGL::GLMat4 modelCelestialBody(float distanceToStar, float scale, float obliquity, float siderealPeriod, float revolutionPeriod)
+{
+	float rotationTime = EZCOGL::current_time() / revolutionPeriod;
+	float secondsTo360Degrees = EZCOGL::current_time() * 360.f;
+	return EZCOGL::Transfo::translate(cos(rotationTime) * distanceToStar, sin(rotationTime) * distanceToStar, 0.f) * EZCOGL::Transfo::scale(scale) * EZCOGL::Transfo::rotateY(obliquity)
+		 * EZCOGL::Transfo::rotateZ(secondsTo360Degrees / siderealPeriod);
+}
+
 void rendCelestialBody(const EZCOGL::GLMat4 &model, EZCOGL::Texture2D::SP *tex, EZCOGL::MeshRenderer::UP *rend)
 {
 	EZCOGL::set_uniform_value(0, model);
@@ -115,16 +126,17 @@ void Viewer::draw_ogl()
 	const EZCOGL::GLMat4& view = this->get_view_matrix() * EZCOGL::Transfo::rotateX(180.f);
 	const EZCOGL::GLMat4& proj = this->get_projection_matrix();
 
-    // Construct a model matrix for both object
+    // Construct a model matrix for every celestial body with distanceToStar, scale, obliquity, siderealPeriod, revolution perdiod
     const EZCOGL::GLMat4& modelSun = EZCOGL::Transfo::scale(1392.684f);
-    const EZCOGL::GLMat4& modelMercury = EZCOGL::Transfo::translate(5790.9f, 0.f, 0.f) * EZCOGL::Transfo::scale(48.794f) * EZCOGL::Transfo::rotateY(0.1f);
-    const EZCOGL::GLMat4& modelVenus =  EZCOGL::Transfo::translate(10816.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(121.036f) * EZCOGL::Transfo::rotateY(177.f);
-    const EZCOGL::GLMat4& modelEarth =  EZCOGL::Transfo::translate(14960.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(127.563f) * EZCOGL::Transfo::rotateY(23.f);
-    const EZCOGL::GLMat4& modelMars =  EZCOGL::Transfo::translate(22799.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(67.924f) * EZCOGL::Transfo::rotateY(25.f);
-    const EZCOGL::GLMat4& modelJupiter =  EZCOGL::Transfo::translate(77836.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(1429.84f) * EZCOGL::Transfo::rotateY(3.f);
-    const EZCOGL::GLMat4& modelSaturn =  EZCOGL::Transfo::translate(143350.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(1205.36f) * EZCOGL::Transfo::rotateY(27.f);
-    const EZCOGL::GLMat4& modelUranus =  EZCOGL::Transfo::translate(287240.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(511.18f) * EZCOGL::Transfo::rotateY(98.f);
-    const EZCOGL::GLMat4& modelNeptune =  EZCOGL::Transfo::translate(449840.0f, 0.f, 0.f) * EZCOGL::Transfo::scale(495.28f) * EZCOGL::Transfo::rotateY(30.f);
+	const EZCOGL::GLMat4& modelMercury = modelCelestialBody(5790.9f, 48.794f, 0.1f, 58.64f, 88.f);
+	const EZCOGL::GLMat4& modelVenus = modelCelestialBody(10816.f, 121.036f, 177.f, 243.01f, 224.7f);
+	const EZCOGL::GLMat4& modelEarth = modelCelestialBody(14960.f, 127.563f, 23.f, 23.93f / 24.f, 356.25f);
+	const EZCOGL::GLMat4& modelMars = modelCelestialBody(22799.f, 67.924f, 25.f, 24.62f / 24.f, 689.f);
+	const EZCOGL::GLMat4& modelJupiter = modelCelestialBody(77836.f, 1429.84f, 3.f, 9.92f / 24.f, 365.25f * 11.87f);
+	const EZCOGL::GLMat4& modelSaturn = modelCelestialBody(143350.f, 1205.36f, 27.f, 10.65f / 24.f, 365.25f * 29.45f);
+	const EZCOGL::GLMat4& modelUranus = modelCelestialBody(287240.f, 511.18f, 98.f, 17.24f / 24.f, 365.25f * 84.07f);
+	const EZCOGL::GLMat4& modelNeptune = modelCelestialBody(449840.f, 495.28f, 30.f, 16.11f / 24.f, 365.25f * 164.89f);
+
 	// activate Z-buffer
 	glEnable(GL_DEPTH_TEST);
 	shaderPrg->bind();
