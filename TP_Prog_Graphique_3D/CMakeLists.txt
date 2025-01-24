@@ -41,9 +41,11 @@ set( tp_list
 
   #tp8
 
-  tp10-1
+  #tp10-1
 
-  tp10-2
+  #tp10-2
+
+  projet
 
 )
 

@@ -1,0 +1,9 @@
+CMakeLists.txt
+Configuration?md
+README.md
+easycppogl_src/*
+GL/*
+KHR/*
+cmake/*
+build/*
+.vscode/*

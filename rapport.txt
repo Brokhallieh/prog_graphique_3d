@@ -1,0 +1,1 @@
+Les distances en taille sont en millions de mettres dans le code, avec les tailles de planètes * 10 et leur distances par rapport au soleil /10
