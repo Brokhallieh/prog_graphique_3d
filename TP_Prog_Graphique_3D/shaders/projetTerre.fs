@@ -13,21 +13,20 @@ out vec4 oFragmentColor;
 
 // UNIFORM BINDING
 layout(binding = 0) uniform sampler2D uColor;
-layout(binding = 1) uniform sampler2D uColor2;
+layout(binding = 1) uniform sampler2D uColorClouds;
+layout(binding = 2) uniform sampler2D uColorNight;
 
 //UNIFORM LOCATION
 layout(location = 4) uniform vec3 uLightIntensity;
 layout(location = 5) uniform vec3 uLightPos;
 layout(location = 6) uniform vec3 uKa;
-layout(location = 7) uniform vec3 uKd;
-layout(location = 8) uniform vec3 uKs;
-layout(location = 9) uniform float uNs;
-layout(location = 10) uniform bool isPlanet;
+layout(location = 7) uniform vec3 uKs;
+layout(location = 8) uniform float uNs;
 
 // MAIN PROGRAM
 void main()
 {
-	vec3 naturalColor = texture(uColor, texCoord).xyz;
+	vec3 colorDay = texture(uColor, texCoord).xyz, colorClouds = texture(uColorClouds, texCoord).xyz, colorNight = texture(uColorNight, texCoord).xyz;
 
 	vec3 normal = normalize(v_norm);
 	if (gl_FrontFacing == false) normal = -normal;
@@ -39,13 +38,7 @@ void main()
 	// Diffuse lighting : lambert BRDF
 	// Get the angle between the normal of the fragment and the light direction to the fragment
 	float diffuseTerm = max(0.f, dot(normal, lightDir)); // "max" is used to avoid "back" lighting (when light is behind the object)
-
-	vec3 Kd = uKd;
-	if (isPlanet)
-	{
-		Kd = naturalColor;
-	}
-	vec3 Id = uLightIntensity * Kd * vec3(diffuseTerm);
+	vec3 Id = uLightIntensity * vec3(1.f) * vec3(diffuseTerm);
 
 	Id /= PI; // normalization of the diffuse BRDF (for energy conservation)
 
@@ -59,9 +52,8 @@ void main()
 		Is = uLightIntensity * uKs * vec3(specularTerm);
 		Is /= (uNs + 2.f) / (2.f * PI); // normalization of the specular BRDF (for energy conservation)
 	}
-
-	// Reflected intensity (i.e final color) from additif model
-	vec3 finalColor = (0.3 * Ia) + (0.3 * Id) + (0.3 * Is);
+	vec3 texEarth = mix(colorNight, colorDay, (0.3 * Ia) + (0.3 * Id) + (0.3 * Is));
+	vec3 finalColor = mix(texEarth, (0.3 * Ia) + (0.3 * Id) + (0.3 * Is) + 0.08f, colorClouds);
 
 	oFragmentColor = vec4(finalColor, 1.f);
 }

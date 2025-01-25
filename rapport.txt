@@ -1,2 +1,7 @@
 Les distances en taille sont en millions de mettres dans le code, avec les tailles de tout les astres * 20
 Il se passe un jour par seconde
+rock.png a été déplacé dans le dossier rock car c'est là que la fonction EZCOGL::Mesh::load va automatiquement chercher
+J'ai dû resize skybox_milky_way_4k.png pour qu'il soit de la même taille que les autres, c'est maintenant skybox_milky_way_1k.png
+La skybox est gérée dans un un shader program différent que le reste, vu qu'elle n'utilise pas du les mêmes techniques de placement et d'affichage
+Le soleil est gérée dans un un shader program différent des autres astres, vu qu'il n'utilise pas l'éclairage de Phong
+La terre est gérée dans un un shader program différent des autres astres, vu utilise un système de mix pour ses textures qui lui est unique
