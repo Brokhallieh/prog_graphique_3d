@@ -1,2 +1,2 @@
-Les distances en taille sont en millions de mettres dans le code, avec les tailles de planètes * 10 et leur distances par rapport au soleil /10
+Les distances en taille sont en millions de mettres dans le code, avec les tailles de tout les astres * 20
 Il se passe un jour par seconde

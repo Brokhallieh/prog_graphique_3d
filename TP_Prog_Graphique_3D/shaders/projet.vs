@@ -2,7 +2,7 @@
 
 // INPUT
 layout(location = 1) in vec3 position_in;
-layout(location = 2) in vec2 texCoord_in;
+layout(location = 3) in vec2 texCoord_in;
 
 // UNIFORM
 layout(location = 0) uniform mat4 modelMatrix;
