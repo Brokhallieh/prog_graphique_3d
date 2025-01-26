@@ -74,6 +74,7 @@ class Viewer: public EZCOGL::GLViewer
 
 	std::vector<EZCOGL::MeshRenderer::UP> asteroids_rend;
 	std::vector<EZCOGL::GLMat4> modelAsteroids;
+	std::vector<EZCOGL::GLMat4> modelAsteroidsKuiper;
 	int nbMeshParts;
 	int nbAsteroids;
 
@@ -95,7 +96,7 @@ public:
 	void draw_ogl() override;
 	void interface_ogl() override;
 	EZCOGL::Texture2D::SP textureCelestialBody(const std::string &filename);
-	void randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb);
+	void randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic);
 	EZCOGL::GLMat4 modelCelestialBody(float distanceToStar, float scale, float obliquity, float siderealPeriod, float revolutionPeriod);
 	void rendCelestialBody(const EZCOGL::GLMat4 &model, EZCOGL::Texture2D::SP *tex, const EZCOGL::GLMat4 &view);
 };
@@ -118,18 +119,18 @@ EZCOGL::Texture2D::SP Viewer::textureCelestialBody(const std::string &filename)
 	return tex;
 }
 
-void Viewer::randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb)
+void Viewer::randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic)
 {
 	matrices.reserve(nb);
 	std::srand(std::time(nullptr));
 	for (int i = 0; i < nb; ++i)
 	{
 		// Translations
-		float LO = 314555.527f;
-		float HI = 493672.971f;
+		float LO = distanceToStar[0];
+		float HI = distanceToStar[1];
 		float tX = LO + static_cast<float>(rand()) / (static_cast <float>(RAND_MAX/(HI-LO)));
-		LO = -74798.935f;
-		HI = 74798.935f;
+		LO = -distanceToEcliptic;
+		HI = distanceToEcliptic;
 		float tZ = LO + static_cast<float>(rand()) / (static_cast <float>(RAND_MAX/(HI-LO)));
 		// Rotation around the star
 		LO = -180.f;
@@ -175,7 +176,8 @@ void Viewer::init_ogl()
 		nsAsteroids.push_back(meshAsteroid[i]->material()->Ns); // shininess of the specular material
 	}
 
-	randomModelMatrices(modelAsteroids, nbAsteroids);
+	randomModelMatrices(modelAsteroids, nbAsteroids, EZCOGL::GLVec2(314555.527f, 493672.971f), 74798.935f);
+	randomModelMatrices(modelAsteroidsKuiper, nbAsteroids, EZCOGL::GLVec2(4490000.f, 7480000.f), 100000.f);
 
 	auto meshCube = EZCOGL::Mesh::CubePosOnly();
     cube_rend = meshCube->renderer(1, -1, -1, -1, -1);
@@ -254,6 +256,8 @@ void Viewer::draw_ogl()
 		float currentTimeToDegree = (EZCOGL::current_time() -  previous_time) * timeBuff;
 		modelAsteroids[i] *= EZCOGL::Transfo::rotateX(currentTimeToDegree * 360.f);
 		modelAsteroids[i] = EZCOGL::Transfo::rotateZ(-currentTimeToDegree) * modelAsteroids[i];
+		modelAsteroidsKuiper[i] *= EZCOGL::Transfo::rotateX(currentTimeToDegree * 360.f);
+		modelAsteroidsKuiper[i] = EZCOGL::Transfo::rotateZ(-currentTimeToDegree) * modelAsteroidsKuiper[i];
 	}
 
     glDisable(GL_DEPTH_TEST);
@@ -333,6 +337,10 @@ void Viewer::draw_ogl()
 			EZCOGL::set_uniform_value(7, kdAsteroids[j]);
 			EZCOGL::set_uniform_value(8, ksAsteroids[j]);
 			EZCOGL::set_uniform_value(9, nsAsteroids[j]);
+			asteroids_rend[j]->draw(GL_TRIANGLES);
+		}
+		EZCOGL::set_uniform_value(0, modelAsteroidsKuiper[i]);
+		for (int j = 0; j < nbMeshParts; j++) {
 			asteroids_rend[j]->draw(GL_TRIANGLES);
 		}
 	}
