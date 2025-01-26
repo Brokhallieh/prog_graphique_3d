@@ -13,7 +13,6 @@ out vec4 oFragmentColor;
 
 // UNIFORM BINDING
 layout(binding = 0) uniform sampler2D uColor;
-layout(binding = 1) uniform sampler2D uColor2;
 
 //UNIFORM LOCATION
 layout(location = 4) uniform vec3 uLightIntensity;
@@ -36,9 +35,7 @@ void main()
 
 	vec3 Ia = uLightIntensity * uKa;
 
-	// Diffuse lighting : lambert BRDF
-	// Get the angle between the normal of the fragment and the light direction to the fragment
-	float diffuseTerm = max(0.f, dot(normal, lightDir)); // "max" is used to avoid "back" lighting (when light is behind the object)
+	float diffuseTerm = max(0.f, dot(normal, lightDir));
 
 	vec3 Kd = uKd;
 	if (isPlanet)
@@ -47,21 +44,19 @@ void main()
 	}
 	vec3 Id = uLightIntensity * Kd * vec3(diffuseTerm);
 
-	Id /= PI; // normalization of the diffuse BRDF (for energy conservation)
+	Id /= PI;
 
-	// Specular lighting : phong BRDF
 	vec3 Is = vec3(0.f);
 	if (diffuseTerm > 0.f)
 	{
-		vec3 viewDir = normalize(-v_pos.xyz); // "view direction" from current vertex position => because, in View space, "dir = vec3(0.0, 0.0, 0.0) - p"
-		vec3 halfDir = normalize(viewDir + lightDir); // half-vector between view and light vectors
-		float specularTerm = max(0.f, pow(dot(normal, halfDir), uNs)); // "Ns" control the size of the specular highlight
+		vec3 viewDir = normalize(-v_pos.xyz);
+		vec3 halfDir = normalize(viewDir + lightDir);
+		float specularTerm = max(0.f, pow(dot(normal, halfDir), uNs));
 		Is = uLightIntensity * uKs * vec3(specularTerm);
-		Is /= (uNs + 2.f) / (2.f * PI); // normalization of the specular BRDF (for energy conservation)
+		Is /= (uNs + 2.f) / (2.f * PI);
 	}
 
-	// Reflected intensity (i.e final color) from additif model
 	vec3 finalColor = (0.3 * Ia) + (0.3 * Id) + (0.3 * Is);
 
-	oFragmentColor = vec4(finalColor, 1.f);
+	oFragmentColor = vec4(mix(vec3(0.f), naturalColor, finalColor), 1.f);
 }

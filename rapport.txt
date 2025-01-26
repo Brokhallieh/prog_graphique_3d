@@ -1,5 +1,7 @@
-Les distances en taille sont en millions de mettres dans le code, avec les tailles de tout les astres * 20
-Il se passe un jour par seconde
+Les distances en taille sont en millions de mettres dans le code, avec la taille du soleil * 20, la taille des planètes telluriques et des astéroides * 350, et la taille des planètes géantes * 80 pour que tout soit bien visible
+Il se passe un jour par seconde par défaut avec un slider pour changer la vitesse
+J'ai changé l'éclairage ambient des planètes à (0.1, 0.1, 0.1) et pour le spéculaire à (0.65, 0.65, 0.65) pour les planètes telluriques et (0.2, 0.2, 0.2) pour les géantes.
+Les astéroides tournent sur eux-mêmes de façon pseudo-aléatoire et autour du soleil également avec une vitesse pseudo-aléatoire
 rock.png a été déplacé dans le dossier rock car c'est là que la fonction EZCOGL::Mesh::load va automatiquement chercher
 J'ai dû resize skybox_milky_way_4k.png pour qu'il soit de la même taille que les autres, c'est maintenant skybox_milky_way_1k.png
 La skybox est gérée dans un un shader program différent que le reste, vu qu'elle n'utilise pas du les mêmes techniques de placement et d'affichage
