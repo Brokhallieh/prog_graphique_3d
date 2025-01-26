@@ -96,7 +96,7 @@ public:
 	void draw_ogl() override;
 	void interface_ogl() override;
 	EZCOGL::Texture2D::SP textureCelestialBody(const std::string &filename);
-	void randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic);
+	void randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic, float scaleBuff);
 	EZCOGL::GLMat4 modelCelestialBody(float distanceToStar, float scale, float obliquity, float siderealPeriod, float revolutionPeriod);
 	void rendCelestialBody(const EZCOGL::GLMat4 &model, EZCOGL::Texture2D::SP *tex, const EZCOGL::GLMat4 &view);
 };
@@ -119,7 +119,7 @@ EZCOGL::Texture2D::SP Viewer::textureCelestialBody(const std::string &filename)
 	return tex;
 }
 
-void Viewer::randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic)
+void Viewer::randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, const EZCOGL::GLVec2 &distanceToStar, float distanceToEcliptic, float scaleBuff)
 {
 	matrices.reserve(nb);
 	std::srand(std::time(nullptr));
@@ -139,7 +139,7 @@ void Viewer::randomModelMatrices(std::vector<EZCOGL::GLMat4> &matrices, int nb, 
 		// Scale
 		LO = 0.01f;
 		HI = 1.f;
-		float sc = (LO + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(HI-LO)))) * scaleBuffAll * scaleBuffAsteroids;
+		float sc = (LO + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX/(HI-LO)))) * scaleBuff * scaleBuffAll * scaleBuffAsteroids;
 		// Rotations on itself
 		LO = -180.f;
 		HI = 180.f;
@@ -176,8 +176,8 @@ void Viewer::init_ogl()
 		nsAsteroids.push_back(meshAsteroid[i]->material()->Ns); // shininess of the specular material
 	}
 
-	randomModelMatrices(modelAsteroids, nbAsteroids, EZCOGL::GLVec2(314555.527f, 493672.971f), 74798.935f);
-	randomModelMatrices(modelAsteroidsKuiper, nbAsteroids, EZCOGL::GLVec2(4490000.f, 7480000.f), 100000.f);
+	randomModelMatrices(modelAsteroids, nbAsteroids, EZCOGL::GLVec2(314555.527f, 493672.971f), 74798.935f, 1.f);
+	randomModelMatrices(modelAsteroidsKuiper, nbAsteroids, EZCOGL::GLVec2(4500000.f, 7500000.f), 1500000.f, 5.f);
 
 	auto meshCube = EZCOGL::Mesh::CubePosOnly();
     cube_rend = meshCube->renderer(1, -1, -1, -1, -1);
